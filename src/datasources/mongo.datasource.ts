@@ -4,12 +4,12 @@ import {juggler} from '@loopback/repository';
 const config = {
   name: 'mongo',
   connector: 'mongodb',
-  url: 'mongodb://localhost:27017/AppStore_db',
-  host: 'localhost',
+  url: 'mongodb+srv://online_store_db:EGIPPMiQpX522cIu@cluster0.bfoxu.mongodb.net/StoreDB?retryWrites=true&w=majority',
+  host: 'cluster0.bfoxu.mongodb.net',
   port: 27017,
-  user: '',
-  password: '',
-  database: 'AppStore_db',
+  user: 'online_store_db',
+  password: 'EGIPPMiQpX522cIu',
+  database: 'StoreDB',
   useNewUrlParser: true
 };
 
