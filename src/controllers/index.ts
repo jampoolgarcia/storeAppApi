@@ -15,3 +15,7 @@ export * from './shopping-cart-sale-document.controller';
 export * from './sale-document-shopping-cart.controller';
 export * from './customer-user.controller';
 export * from './customer-shopping-cart.controller';
+export * from './brand.controller';
+export * from './category.controller';
+export * from './customer.controller';
+export * from './product.controller';
