@@ -13,3 +13,5 @@ export * from './shopping-cart-customer.controller';
 export * from './user-customer.controller';
 export * from './shopping-cart-sale-document.controller';
 export * from './sale-document-shopping-cart.controller';
+export * from './customer-user.controller';
+export * from './customer-shopping-cart.controller';
