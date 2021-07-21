@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -80,6 +81,7 @@ export class CustomerController {
 
 
   // listado de clientes
+  @authenticate('UserTokenStrategy')
   @get('/customer')
   @response(200, {
     description: 'Array of Customer model instances',

@@ -1,4 +1,6 @@
 import {repository} from '@loopback/repository';
+import {HttpErrors, Request} from '@loopback/rest';
+import {securityId, UserProfile} from '@loopback/security';
 import {Keys} from '../key/keys.service';
 import {User} from '../models';
 import {UserRepository} from '../repositories';
@@ -49,6 +51,63 @@ export class AuthService {
     }, Keys.JWT_SECRET_KEY)
     // devuelve el token creado
     return token;
+  }
+
+  // extra el token de la petición request
+  async extractToken(req: Request): Promise<string> {
+    // comprueba si en el encabezado viene el apartado de autorización
+    if (!req.headers.authorization)
+      // dispara un error en el caso de que no lo posea
+      throw new HttpErrors.Unauthorized(`No se encontró el encabezado de autorización.`);
+
+    // guarda el valor de la autorización
+    const authHeaderValue = req.headers.authorization;
+
+    // verifica si el valor comienza con la palabra 'Bearer'
+    if (!authHeaderValue.startsWith('Bearer'))
+      // dispara un error en el caso de que no comience con 'Bearer'
+      throw new HttpErrors.Unauthorized(`El encabezado de autorización no es del tipo 'Bearer'.`);
+
+    // divide el valor en partes por espacios y lo guarda en un arreglo
+    const parts = authHeaderValue.split(' ');
+
+    // comprueba si las partes son diferentes a dos
+    if (parts.length !== 2)
+      // dispara un error en el caso de que no se cumpla el patron 'Bearer xx.yy.zz'
+      throw new HttpErrors.Unauthorized(`El valor del encabezado de autorización tiene demasiadas partes. Debe seguir el patrón: 'Bearer xx.yy.zz' donde xx.yy.zz es un token JWT válido.`);
+
+    // guarda el token que se encuentra en el segundo valor del arreglo 'parts'
+    const token = parts[1];
+
+    // devuelve el token
+    return token;
+
+  }
+
+  // Verifica que el token sea valido y devuelve un 'UserProfile'
+  async VerifyUserToken(token: string): Promise<UserProfile> {
+    // realiza una prueba de codigo para haci poder capturar cualquier posible error
+    try {
+      // verifica el token, obtiene y almacena su data
+      const data = jwt.verify(token, Keys.JWT_SECRET_KEY).data;
+      // asigna un objeto de tipo 'UserProfile' con los datos obtenidos del token
+      const userProfile: UserProfile = Object.assign(
+        {[securityId]: '', name: ''},
+        {
+          [securityId]: data.id,
+          name: data.name,
+          id: data.id
+        }
+      )
+
+      // retorna el userProfile
+      return userProfile;
+
+      // captura los errores
+    } catch (err) {
+      // dispara un error en el caso de que algo salga mal
+      throw new HttpErrors.Unauthorized('Error al verificar el token.')
+    }
   }
 
 }

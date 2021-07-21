@@ -1,14 +1,16 @@
+import {AuthenticationComponent, registerAuthenticationStrategy} from '@loopback/authentication';
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
-import {
-  RestExplorerBindings,
-  RestExplorerComponent,
-} from '@loopback/rest-explorer';
 import {RepositoryMixin} from '@loopback/repository';
 import {RestApplication} from '@loopback/rest';
+import {
+  RestExplorerBindings,
+  RestExplorerComponent
+} from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import {MySequence} from './sequence';
+import {UserTokenStrategy} from './strategies/userTokenStrategy';
 
 export {ApplicationConfig};
 
@@ -17,6 +19,11 @@ export class App extends BootMixin(
 ) {
   constructor(options: ApplicationConfig = {}) {
     super(options);
+
+
+    // Monta el sistema de autenticación
+    this.component(AuthenticationComponent);
+    registerAuthenticationStrategy(this, UserTokenStrategy);
 
     // Set up the custom sequence
     this.sequence(MySequence);
@@ -42,3 +49,7 @@ export class App extends BootMixin(
     };
   }
 }
+function JWTAuthenticationComponent(JWTAuthenticationComponent: any) {
+  throw new Error('Function not implemented.');
+}
+
