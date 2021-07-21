@@ -46,6 +46,7 @@ export class AuthService {
         _id: user.id,
         userName: user.userName,
         customer: user.customerId,
+        role: user.role
       }
       // firma el token con una clave secreta
     }, Keys.JWT_SECRET_KEY)
@@ -84,12 +85,19 @@ export class AuthService {
 
   }
 
-  // Verifica que el token sea valido y devuelve un 'UserProfile'
-  async VerifyUserToken(token: string): Promise<UserProfile> {
+  // Verifica que el token y el rol sean validos, devuelve un 'UserProfile'
+  async VerifyToken(token: string, role: number): Promise<UserProfile> {
     // realiza una prueba de codigo para haci poder capturar cualquier posible error
     try {
+
       // verifica el token, obtiene y almacena su data
       const data = jwt.verify(token, Keys.JWT_SECRET_KEY).data;
+
+      // verifica que el usuario sea el rol que fue pasado como argumento
+      if (data.role != role)
+        // dispara un error en el caso que el rol no se de tipo usuario
+        throw new HttpErrors.Unauthorized('Error el usuario no posee un rol valido.');
+
       // asigna un objeto de tipo 'UserProfile' con los datos obtenidos del token
       const userProfile: UserProfile = Object.assign(
         {[securityId]: '', name: ''},
@@ -105,6 +113,7 @@ export class AuthService {
 
       // captura los errores
     } catch (err) {
+
       // dispara un error en el caso de que algo salga mal
       throw new HttpErrors.Unauthorized('Error al verificar el token.')
     }

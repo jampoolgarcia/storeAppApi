@@ -18,6 +18,12 @@ export class User extends Entity {
   userName: string;
 
   @property({
+    type: 'number',
+    required: true,
+  })
+  role: number;
+
+  @property({
     type: 'string',
     required: true,
   })

@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Product} from '../models';
 import {ProductRepository} from '../repositories';
@@ -23,15 +18,21 @@ import {ProductRepository} from '../repositories';
 export class ProductController {
   constructor(
     @repository(ProductRepository)
-    public productRepository : ProductRepository,
-  ) {}
+    public productRepository: ProductRepository,
+  ) { }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
+  // endpoint para crear productos
   @post('/product')
+  // tipo de respuesta
   @response(200, {
     description: 'Product model instance',
     content: {'application/json': {schema: getModelSchemaRef(Product)}},
   })
+  // metodo a ejecutar al acceder al endpoint
   async create(
+    // descripción del body que sera resivido
     @requestBody({
       content: {
         'application/json': {
@@ -44,9 +45,12 @@ export class ProductController {
     })
     product: Omit<Product, 'id'>,
   ): Promise<Product> {
+    // creación del producto.
     return this.productRepository.create(product);
   }
 
+
+  // endpoint para obtener el número de productos registrados
   @get('/product/count')
   @response(200, {
     description: 'Product model count',
@@ -58,6 +62,7 @@ export class ProductController {
     return this.productRepository.count(where);
   }
 
+  // obtine un listodo de productos
   @get('/product')
   @response(200, {
     description: 'Array of Product model instances',
@@ -76,6 +81,9 @@ export class ProductController {
     return this.productRepository.find(filter);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
+  // modifica varios productos segun la condicion que se le pase
   @patch('/product')
   @response(200, {
     description: 'Product PATCH success count',
@@ -95,6 +103,9 @@ export class ProductController {
     return this.productRepository.updateAll(product, where);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
+  // obtiene un producto segun su id
   @get('/product/{id}')
   @response(200, {
     description: 'Product model instance',
@@ -111,6 +122,9 @@ export class ProductController {
     return this.productRepository.findById(id, filter);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
+  // modifica un o más valores de un producto según su 'id'
   @patch('/product/{id}')
   @response(204, {
     description: 'Product PATCH success',
@@ -129,6 +143,9 @@ export class ProductController {
     await this.productRepository.updateById(id, product);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
+  // modifica el producto según su 'id'
   @put('/product/{id}')
   @response(204, {
     description: 'Product PUT success',
@@ -140,6 +157,9 @@ export class ProductController {
     await this.productRepository.replaceById(id, product);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
+  // elimina el producto según su 'id'
   @del('/product/{id}')
   @response(204, {
     description: 'Product DELETE success',

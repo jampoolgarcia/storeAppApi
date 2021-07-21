@@ -67,6 +67,8 @@ export class CustomerController {
     return c;
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   // numero de clientes
   @get('/customer/count')
   @response(200, {
@@ -100,6 +102,8 @@ export class CustomerController {
     return this.customerRepository.find(filter);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('UserTokenStrategy')
   // actualizar uno o varios campos de los clientes que cumplan la condición
   @patch('/customer')
   @response(200, {
@@ -120,6 +124,8 @@ export class CustomerController {
     return this.customerRepository.updateAll(customer, where);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('UserTokenStrategy')
   // busca un cliente por su id
   @get('/customer/{id}')
   @response(200, {
@@ -137,6 +143,8 @@ export class CustomerController {
     return this.customerRepository.findById(id, filter);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('UserTokenStrategy')
   // actualiza cualquier campo de un cliente por su id.
   @patch('/customer/{id}')
   @response(204, {
@@ -156,6 +164,8 @@ export class CustomerController {
     await this.customerRepository.updateById(id, customer);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('UserTokenStrategy')
   // actualiza un cliente por su id
   @put('/customer/{id}')
   @response(204, {
@@ -178,6 +188,8 @@ export class CustomerController {
     await this.customerRepository.replaceById(id, customer);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   // elimina un cliente por su id
   @del('/customer/{id}')
   @response(204, {

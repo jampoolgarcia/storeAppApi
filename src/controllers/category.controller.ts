@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Category} from '../models';
 import {CategoryRepository} from '../repositories';
@@ -23,9 +18,11 @@ import {CategoryRepository} from '../repositories';
 export class CategoryController {
   constructor(
     @repository(CategoryRepository)
-    public categoryRepository : CategoryRepository,
-  ) {}
+    public categoryRepository: CategoryRepository,
+  ) { }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @post('/category')
   @response(200, {
     description: 'Category model instance',
@@ -47,6 +44,8 @@ export class CategoryController {
     return this.categoryRepository.create(category);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @get('/category/count')
   @response(200, {
     description: 'Category model count',
@@ -76,6 +75,8 @@ export class CategoryController {
     return this.categoryRepository.find(filter);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @patch('/category')
   @response(200, {
     description: 'Category PATCH success count',
@@ -95,6 +96,8 @@ export class CategoryController {
     return this.categoryRepository.updateAll(category, where);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @get('/category/{id}')
   @response(200, {
     description: 'Category model instance',
@@ -111,6 +114,8 @@ export class CategoryController {
     return this.categoryRepository.findById(id, filter);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @patch('/category/{id}')
   @response(204, {
     description: 'Category PATCH success',
@@ -129,6 +134,8 @@ export class CategoryController {
     await this.categoryRepository.updateById(id, category);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @put('/category/{id}')
   @response(204, {
     description: 'Category PUT success',
@@ -140,6 +147,8 @@ export class CategoryController {
     await this.categoryRepository.replaceById(id, category);
   }
 
+  // verifica la autenticaión antes de acceder al endpoint
+  @authenticate('AdminTokenStrategy')
   @del('/category/{id}')
   @response(204, {
     description: 'Category DELETE success',

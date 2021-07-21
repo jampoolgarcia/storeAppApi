@@ -9,7 +9,7 @@ import {AuthService} from '../services/auth.service';
 export class UserTokenStrategy implements AuthenticationStrategy {
 
   // nombre de la strategia de autentificación
-  public name: string = 'UserTokenStrategy';
+  public name: string = 'AdminTokenStrategy';
   // objeto de tipo 'AuthService'
   private authService: AuthService;
 
@@ -27,12 +27,10 @@ export class UserTokenStrategy implements AuthenticationStrategy {
   async authenticate(req: Request): Promise<UserProfile> {
     // extrae el token de la petición
     const token = await this.authService.extractToken(req);
-    // verifica si el token es valido y el rol sean válido, y guarda un 'UserProfile' con sus datos
-    const userProfile = await this.authService.VerifyToken(token, 1);
+    // verifica si el token y el rol sean válido, y guarda un 'UserProfile' con sus datos
+    const userProfile = await this.authService.VerifyToken(token, 2);
     // retorna el 'userProfile'
     return userProfile;
   }
-
-
 
 }
