@@ -4,28 +4,27 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Customer} from '../models';
-import {CustomerRepository} from '../repositories';
+import {CustomerRepository, UserRepository} from '../repositories';
+import {EncryptDecrypt, KeyTypes as keys} from '../services/encrypt-decrypt.service';
 
 export class CustomerController {
   constructor(
     @repository(CustomerRepository)
-    public customerRepository : CustomerRepository,
-  ) {}
+    public customerRepository: CustomerRepository,
+    @repository(UserRepository)
+    public userRepository: UserRepository,
+  ) { }
 
+
+  // crear cliente
   @post('/customer')
   @response(200, {
     description: 'Customer model instance',
@@ -44,9 +43,30 @@ export class CustomerController {
     })
     customer: Omit<Customer, 'id'>,
   ): Promise<Customer> {
-    return this.customerRepository.create(customer);
+    // guardo un cliente en la base de datos y se lo asigno a la variable c
+    let c = await this.customerRepository.create(customer);
+    // encripta la clave
+    const p = new EncryptDecrypt(keys.MD5).Encrypt(c.document);
+    const p2 = new EncryptDecrypt(keys.MD5).Encrypt(p);
+    // creó el usuario apartir de los datos del cliente
+    let u = {
+      userName: c.email,
+      password: p2,
+      customerId: c.id!
+    }
+
+    // guarda el usuario en la base de datos y se lo asigna a la variable user
+    let user = await this.userRepository.create(u);
+    // le quito la contraseña al usuario para enviarlo.
+    user.password = '';
+    // asigna el usuario al cliente
+    c.user = user;
+
+    // devuelve el cliente y su usuario
+    return c;
   }
 
+  // numero de clientes
   @get('/customer/count')
   @response(200, {
     description: 'Customer model count',
@@ -58,6 +78,8 @@ export class CustomerController {
     return this.customerRepository.count(where);
   }
 
+
+  // listado de clientes
   @get('/customer')
   @response(200, {
     description: 'Array of Customer model instances',
@@ -76,6 +98,7 @@ export class CustomerController {
     return this.customerRepository.find(filter);
   }
 
+  // actualizar uno o varios campos de los clientes que cumplan la condición
   @patch('/customer')
   @response(200, {
     description: 'Customer PATCH success count',
@@ -95,6 +118,7 @@ export class CustomerController {
     return this.customerRepository.updateAll(customer, where);
   }
 
+  // busca un cliente por su id
   @get('/customer/{id}')
   @response(200, {
     description: 'Customer model instance',
@@ -111,6 +135,7 @@ export class CustomerController {
     return this.customerRepository.findById(id, filter);
   }
 
+  // actualiza cualquier campo de un cliente por su id.
   @patch('/customer/{id}')
   @response(204, {
     description: 'Customer PATCH success',
@@ -129,6 +154,7 @@ export class CustomerController {
     await this.customerRepository.updateById(id, customer);
   }
 
+  // actualiza un cliente por su id
   @put('/customer/{id}')
   @response(204, {
     description: 'Customer PUT success',
@@ -137,9 +163,20 @@ export class CustomerController {
     @param.path.string('id') id: string,
     @requestBody() customer: Customer,
   ): Promise<void> {
+    // busca un usuario donde el customerId sea igual al id que viene en la petición
+    let u = await this.userRepository.findOne({where: {customerId: id}});
+    // valida que el usuario no este vacio.
+    if (u) {
+      // asignama el email al userName
+      u.userName = customer.email;
+      // actuliza el usuario con el nuemo userName
+      await this.userRepository.replaceById(u.id, u);
+    }
+    // actualiza el cliente con los nuevos datos
     await this.customerRepository.replaceById(id, customer);
   }
 
+  // elimina un cliente por su id
   @del('/customer/{id}')
   @response(204, {
     description: 'Customer DELETE success',
